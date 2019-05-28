@@ -3,11 +3,13 @@ module Purememo.Component.Home where
 import Prelude
 
 import Data.Maybe (Maybe(..))
+import Data.Traversable (traverse)
 import Effect.Aff.Class (class MonadAff)
 import Halogen as H
 import Halogen.HTML as HH
+import Halogen.HTML.Events as HE
 import Network.RemoteData (RemoteData(..))
-import Purememo.Capability.Resource.Memo (class ManageMemo, MemoQuery(..), createMemo, getMemos)
+import Purememo.Capability.Resource.Memo (class ManageMemo, MemoQuery(..), createMemo, deleteMemo, getMemos)
 import Purememo.Component.MemoList (memoList)
 import Purememo.Component.NewMemoForm (newMemoForm)
 import Purememo.Data.Memo (MemoWithMetadata, Memo)
@@ -20,6 +22,7 @@ type State =
 data Query a
   = Initialize a
   | CreateMemo a
+  | ClearAll a
 
 
 home :: forall m. MonadAff m => ManageMemo m =>
@@ -56,8 +59,14 @@ home =
           , tagList: ["lorem", "ipsum", "dolor", "sit", "amet"]
           }
       _ <- createMemo memo
-      allMemos <- getMemos All
-      H.modify_ $ _ { memos = Success allMemos }
+      memos <- getMemos All
+      H.modify_ $ _ { memos = Success memos }
+      pure a
+
+    ClearAll a -> do
+      memos <- getMemos All
+      _ <- traverse deleteMemo (_.id <$> memos)
+      H.modify_ $ _ { memos = Success [] }
       pure a
 
   render :: State -> H.ComponentHTML Query
@@ -65,6 +74,9 @@ home =
     HH.div_
       [ HH.h1_
           [ HH.text "Purememo" ]
+      , HH.button
+          [ HE.onClick $ HE.input_ ClearAll ]
+          [ HH.text "Clear all" ]
       , memoList state.memos
       , newMemoForm CreateMemo
       ]
