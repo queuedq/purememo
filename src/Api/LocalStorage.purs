@@ -12,7 +12,7 @@ module Purememo.Api.LocalStorage
 import Prelude
 
 import Control.Monad.Except (ExceptT(..), runExceptT)
-import Data.Argonaut (decodeJson, encodeJson, fromString, stringify)
+import Data.Argonaut (decodeJson, encodeJson, jsonParser, stringify)
 import Data.Array (filter, mapMaybe)
 import Data.Bifunctor (lmap)
 import Data.Either (Either, hush, note)
@@ -32,7 +32,7 @@ import Record (merge)
 -- Utility functions
 
 itemToMemo :: Item -> Either RequestFailure MemoWithMetadata
-itemToMemo { value } = lmap ParseError $ decodeJson $ fromString value
+itemToMemo { value } = lmap ParseError $ decodeJson =<< jsonParser value
 
 getAllMemos :: Effect (Array MemoWithMetadata)
 getAllMemos = mapMaybe (hush <<< itemToMemo) <$> getAllItems
