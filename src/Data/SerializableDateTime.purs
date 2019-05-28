@@ -12,7 +12,6 @@ import Data.RFC3339String (RFC3339String(..))
 
 newtype SerializableDateTime = SerializableDateTime DateTime
 
-
 derive instance newtypeSerializableDateTime :: Newtype SerializableDateTime _
 
 instance decodeJsonSerializableDateTime :: DecodeJson SerializableDateTime where
@@ -20,6 +19,7 @@ instance decodeJsonSerializableDateTime :: DecodeJson SerializableDateTime where
 
 instance encodeJsonSerializableDateTime :: EncodeJson SerializableDateTime where
   encodeJson = encodeJson <<< serialize
+
 
 deserialize :: String -> Either String SerializableDateTime
 deserialize =

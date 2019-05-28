@@ -16,6 +16,7 @@ You can edit this file as you like.
     , "prelude"
     , "psci-support"
     , "record"
+    , "remotedata"
     , "typelevel-prelude"
     , "unicode"
     , "web-html"
